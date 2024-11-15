@@ -11,17 +11,17 @@
 
 
 CREATE TABLE EmployeeDetails (
-EmployeeID INTEGER PRIMARY KEY,
-EmployeeName TEXT,
-Position TEXT,
-HireDate DATE,
-Salary NUMERIC
+    EmployeeID INTEGER PRIMARY KEY,
+    EmployeeName TEXT,
+    Position TEXT,
+    HireDate DATE,
+    Salary NUMERIC
 );
-INSERT INTO EmployeeDetails (EmployeeID, EmployeeName, Position,HireDate, Salary) VALUES (1, 'Mikhail Galustian', 'Comik','1980-02-1', 100000);
-INSERT INTO EmployeeDetails (EmployeeID, EmployeeName, Position,HireDate, Salary) VALUES (2, 'Pavel Volia', 'Stendap Comik','1982-03-28', 150000);
-INSERT INTO EmployeeDetails (EmployeeID, EmployeeName, Position,HireDate, Salary) VALUES (3, 'Garik Kharlamow', 'Actor','1975-05-28', 350000);
-SELECT * FROM EmployeeDetails;
 
+INSERT INTO EmployeeDetails (EmployeeID, EmployeeName, Position, HireDate, Salary)
+VALUES (1, 'John Doe', 'Manager', '2021-01-15', 50000),
+       (2, 'Jane Smith', 'Sales Associate', '2021-03-10', 35000),
+       (3, 'Mark Johnson', 'Accountant', '2020-11-20', 45000);
 
 /*Задание 2: Создание представления
 Задание: Создайте представление HighValueOrders для отображения всех заказов,
@@ -34,16 +34,12 @@ Price).
 
 
 CREATE VIEW HighValueOrders AS
-SELECT
-o.OrderID,
-o.OrderDate,
-SUM(od.Quantity * p.Price) AS TotalAmount
+SELECT o.OrderID, o.OrderDate, SUM(od.Quantity * p.Price) AS TotalAmount
 FROM Orders o
 JOIN OrderDetails od ON o.OrderID = od.OrderID
 JOIN Products p ON od.ProductID = p.ProductID
 GROUP BY o.OrderID, o.OrderDate
-HAVING SUM(od.Quantity * p.Price) > 10000;
-SELECT * FROM HighValueOrders;
+HAVING TotalAmount > 10000;
 
 
 /*Задание 3: Удаление данных и таблиц
@@ -54,9 +50,10 @@ SELECT * FROM HighValueOrders;
 2. Используйте команду DROP TABLE для удаления таблицы.*/
 
 
-DELETE FROM EmployeeDetails WHERE Salary < 50000;
+DELETE FROM EmployeeDetails
+WHERE Salary < 50000;
+
 DROP TABLE EmployeeDetails;
-SELECT * FROM EmployeeDetails;
 
 /*Задание 4: Создание хранимой процедуры
 Задание: Создайте хранимую процедуру GetProductSales с одним параметром
@@ -71,15 +68,16 @@ ProductID. Эта процедура должна возвращать спис�
 ProductID.
 */
 
-
-CREATE PROCEDURE GetProductSales(IN p_ProductID INTEGER)
+CREATE PROCEDURE GetProductSales
+    @ProductID INT
+AS
 BEGIN
-SELECT
-o.OrderID,
-o.OrderDate,
-o.CustomerID
-FROM Orders o
-JOIN OrderDetails od ON o.OrderID = od.OrderID
-WHERE od.ProductID = p_ProductID;
-END;
-CALL GetProductSales(75)
+    SELECT 
+        o.OrderID, 
+        o.OrderDate, 
+        o.CustomerID
+    FROM Orders o
+    JOIN OrderDetails od ON o.OrderID = od.OrderID
+    WHERE od.ProductID = @ProductID
+END
+
